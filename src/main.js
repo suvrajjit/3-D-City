@@ -4,6 +4,7 @@ import { DegradationModel } from './degradationModel.js';
 import { AppState } from './appState.js';
 import { ThreeSetup } from './threeSetup.js';
 import { UIController } from './uiController.js';
+import { GPSController } from './gpsController.js';
 
 // --- CENTRAL STATE & ENGINES ---
 const appState = new AppState();
@@ -14,8 +15,14 @@ const degradationModel = new DegradationModel();
 const canvas = document.querySelector('#city-canvas');
 const threeSetup = new ThreeSetup(canvas);
 
-// --- UI CONTROLLER ---
+// --- CONTROLLERS ---
 const uiController = new UIController(appState, carbonEngine, degradationModel, threeSetup);
+
+// Initialize GPS Controller and pass a callback to navigate back to dashboard when trip finishes
+const gpsController = new GPSController(appState, () => {
+  const dashboardTabBtn = document.querySelector('.phone-nav-bar [data-view="dashboard"]');
+  if (dashboardTabBtn) dashboardTabBtn.click();
+});
 
 // --- RENDERING ANIMATION TICK LOOP ---
 /**

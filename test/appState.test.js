@@ -1,7 +1,15 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { AppState } from '../src/appState.js';
 
 describe('AppState', () => {
+  beforeEach(() => {
+    global.localStorage = {
+      getItem: vi.fn(),
+      setItem: vi.fn(),
+      clear: vi.fn()
+    };
+  });
+
   it('should start with default daily values', () => {
     const state = new AppState();
     expect(state.state.daily.carKm).toBe(20);

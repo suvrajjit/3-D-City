@@ -1356,3 +1356,7 @@ input:checked + .slider-toggle:before {
     top: 74px;
   }
 }
+
+/* Accessibility Focus States */
+:focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 2px; border-radius: inherit; }
+

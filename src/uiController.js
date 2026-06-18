@@ -1,9 +1,12 @@
+import { createSafeElement } from './utils/domUtils.js';
+
 /**
  * UIController - Handles all DOM interactions, event listeners, and synchronizes
  * the UI state with the central application engines and 3D environment.
  */
 export class UIController {
   /**
+   * Initialize the UI Controller
    * @param {Object} appState - Global state manager
    * @param {Object} carbonEngine - Carbon footprint calculator
    * @param {Object} degradationModel - Maps score to environmental factors
@@ -18,10 +21,6 @@ export class UIController {
     this.bindElements();
     this.bindEvents();
     this.updateSimulation();
-    
-    // GPS simulation state
-    this.gpsInterval = null;
-    this.simulatedTripData = null;
     
     // Phone clock tick
     this.updatePhoneClock();
@@ -86,33 +85,6 @@ export class UIController {
     // Mobile Nav & Views
     this.phoneNavItems = document.querySelectorAll('.phone-nav-bar .phone-nav-item');
     this.phoneViews = document.querySelectorAll('.phone-screen .phone-view');
-
-    // Mobile GPS Tab
-    this.gpsSetupPanel = document.querySelector('#gps-setup-panel');
-    this.gpsRunningPanel = document.querySelector('#gps-running-panel');
-    this.gpsSummaryPanel = document.querySelector('#gps-summary-panel');
-    this.gpsRouteSelect = document.querySelector('#gps-route-select');
-    this.gpsCongestionToggle = document.querySelector('#gps-congestion-toggle');
-    this.gpsBtnStart = document.querySelector('#gps-btn-start');
-    this.gpsLat = document.querySelector('#gps-lat');
-    this.gpsLng = document.querySelector('#gps-lng');
-    this.gpsStatDistance = document.querySelector('#gps-stat-distance');
-    this.gpsStatDuration = document.querySelector('#gps-stat-duration');
-    this.gpsStatSpeed = document.querySelector('#gps-stat-speed');
-    this.gpsTripBar = document.querySelector('#gps-trip-bar');
-    this.gpsHeuristicVal = document.querySelector('#gps-heuristic-val');
-
-    // Mobile GPS Summary
-    this.summaryRoute = document.querySelector('#summary-route');
-    this.summaryDistance = document.querySelector('#summary-distance');
-    this.summarySpeed = document.querySelector('#summary-speed');
-    this.summaryDuration = document.querySelector('#summary-duration');
-    this.summaryBadge = document.querySelector('#summary-badge');
-    this.summaryWarning = document.querySelector('#summary-warning');
-    this.overrideSection = document.querySelector('#override-section');
-    this.summaryModeOverride = document.querySelector('#summary-mode-override');
-    this.gpsBtnOverride = document.querySelector('#gps-btn-override');
-    this.gpsBtnConfirm = document.querySelector('#gps-btn-confirm');
 
     // Mobile Diet & Insights Tabs
     this.dietButtons = document.querySelectorAll('.diet-grid .diet-btn');
@@ -247,132 +219,11 @@ export class UIController {
         });
       }
     });
-
-    // Mobile GPS Logic
-    this.bindGPSEvents();
   }
 
   /**
-   * Bind event listeners specifically for GPS mock logic
+   * Updates the digital clock on the phone mockup
    */
-  bindGPSEvents() {
-    const ROUTE_COORDS = {
-      college: { name: 'Home ➔ College', distance: 12.5, startCoords: { lat: 37.77492, lng: -122.41942 }, endCoords: { lat: 37.80761, lng: -122.47413 }, baseSpeed: 50, normalTime: 25 },
-      market: { name: 'Home ➔ Grocery Store', distance: 2.8, startCoords: { lat: 37.77492, lng: -122.41942 }, endCoords: { lat: 37.75830, lng: -122.42840 }, baseSpeed: 24, normalTime: 7 },
-      office: { name: 'Home ➔ Office', distance: 22.0, startCoords: { lat: 37.77492, lng: -122.41942 }, endCoords: { lat: 37.62130, lng: -122.37900 }, baseSpeed: 70, normalTime: 30 },
-      gym: { name: 'Office ➔ Gym', distance: 4.5, startCoords: { lat: 37.62130, lng: -122.37900 }, endCoords: { lat: 37.64100, lng: -122.40100 }, baseSpeed: 32, normalTime: 12 }
-    };
-
-    this.gpsBtnStart.addEventListener('click', () => {
-      const route = ROUTE_COORDS[this.gpsRouteSelect.value];
-      if (!route) return;
-
-      const distance = route.distance;
-      const isCongested = this.gpsCongestionToggle.checked;
-      const speed = isCongested ? route.baseSpeed * 0.40 : route.baseSpeed;
-      const duration = isCongested ? Math.round(route.normalTime * 2.5) : route.normalTime;
-      
-      let heuristicMode = 'Car';
-      if (speed < 6) heuristicMode = 'Walking';
-      else if (speed < 20) heuristicMode = 'Bicycle';
-      else if (speed < 45) heuristicMode = 'Transit (Bus)';
-
-      this.simulatedTripData = { routeName: route.name, distance, speed, duration, detectedMode: heuristicMode, confirmedMode: heuristicMode, isCongested };
-
-      this.gpsSetupPanel.classList.add('hidden');
-      this.gpsRunningPanel.classList.remove('hidden');
-      this.gpsSummaryPanel.classList.add('hidden');
-
-      let ticks = 0;
-      const totalTicks = 50;
-      this.gpsTripBar.style.width = '0%';
-      
-      this.gpsInterval = setInterval(() => {
-        ticks++;
-        const progress = ticks / totalTicks;
-        const currentLat = route.startCoords.lat + (route.endCoords.lat - route.startCoords.lat) * progress;
-        const currentLng = route.startCoords.lng + (route.endCoords.lng - route.startCoords.lng) * progress;
-        const jitterLat = currentLat + (Math.random() - 0.5) * 0.0002;
-        const jitterLng = currentLng + (Math.random() - 0.5) * 0.0002;
-        const currentSpeedJitter = Math.max(1, Math.round(speed + (Math.random() - 0.5) * 5));
-
-        this.gpsLat.textContent = jitterLat.toFixed(5);
-        this.gpsLng.textContent = jitterLng.toFixed(5);
-        this.gpsStatDistance.textContent = `${(distance * progress).toFixed(1)} km`;
-        
-        const currentMins = Math.floor(duration * progress);
-        const currentSecs = Math.floor((duration * progress * 60) % 60);
-        this.gpsStatDuration.textContent = `${currentMins}:${currentSecs < 10 ? '0' + currentSecs : currentSecs}`;
-        this.gpsStatSpeed.textContent = `${currentSpeedJitter} km/h`;
-        
-        this.gpsTripBar.style.width = `${progress * 100}%`;
-        this.gpsHeuristicVal.textContent = heuristicMode;
-
-        if (ticks >= totalTicks) {
-          clearInterval(this.gpsInterval);
-          this.showGpsTripSummary();
-        }
-      }, 150);
-    });
-
-    this.gpsBtnOverride.addEventListener('click', () => {
-      this.overrideSection.classList.toggle('hidden');
-    });
-
-    this.gpsBtnConfirm.addEventListener('click', () => {
-      let confirmed = this.simulatedTripData.detectedMode;
-      if (!this.overrideSection.classList.contains('hidden')) {
-        confirmed = this.summaryModeOverride.value;
-      }
-      this.simulatedTripData.confirmedMode = confirmed;
-      this.appState.addTrip(this.simulatedTripData);
-
-      this.gpsSetupPanel.classList.remove('hidden');
-      this.gpsSummaryPanel.classList.add('hidden');
-      document.querySelector('.phone-nav-bar [data-view="dashboard"]').click();
-    });
-  }
-
-  showGpsTripSummary() {
-    this.gpsRunningPanel.classList.add('hidden');
-    this.gpsSummaryPanel.classList.remove('hidden');
-
-    this.summaryRoute.textContent = this.simulatedTripData.routeName;
-    this.summaryDistance.textContent = `${this.simulatedTripData.distance.toFixed(1)} km`;
-    this.summarySpeed.textContent = `${Math.round(this.simulatedTripData.speed)} km/h`;
-    this.summaryDuration.textContent = `${this.simulatedTripData.duration} mins`;
-
-    this.summaryBadge.textContent = this.simulatedTripData.detectedMode;
-    this.summaryBadge.className = 'guess-badge';
-    
-    if (this.simulatedTripData.detectedMode === 'Car') {
-      this.summaryBadge.style.backgroundColor = 'var(--accent-red)';
-      this.summaryBadge.style.color = '#fff';
-    } else if (this.simulatedTripData.detectedMode.includes('Transit')) {
-      this.summaryBadge.style.backgroundColor = 'var(--accent-blue)';
-      this.summaryBadge.style.color = '#000';
-    } else {
-      this.summaryBadge.style.backgroundColor = 'var(--accent-green)';
-      this.summaryBadge.style.color = '#fff';
-    }
-
-    if (this.simulatedTripData.isCongested) {
-      if (this.simulatedTripData.routeName.includes('College') && this.simulatedTripData.detectedMode.includes('Transit')) {
-        this.summaryWarning.textContent = 'CONGESTION MISCLASSIFICATION: Car journey slowed to transit speeds. Correct it below.';
-        this.summaryWarning.style.color = 'var(--accent-yellow)';
-        this.overrideSection.classList.remove('hidden');
-      } else {
-        this.summaryWarning.textContent = 'Heavy traffic congestion slowed this journey.';
-        this.summaryWarning.style.color = 'var(--accent-yellow)';
-        this.overrideSection.classList.remove('hidden');
-      }
-    } else {
-      this.summaryWarning.textContent = 'Heuristic matches average speeds.';
-      this.summaryWarning.style.color = 'var(--color-text-dim)';
-      this.overrideSection.classList.add('hidden');
-    }
-  }
-
   updatePhoneClock() {
     const now = new Date();
     let hrs = now.getHours();
@@ -457,6 +308,9 @@ export class UIController {
     return { score, dailyCO2, lifestyle };
   }
 
+  /**
+   * Sync the mobile dashboard tab
+   */
   syncPhoneDashboardUI() {
     const { score, dailyCO2, lifestyle } = this.updateSimulation();
     
@@ -479,23 +333,48 @@ export class UIController {
     this.renderPhoneNotifications();
   }
 
+  /**
+   * Safely renders the notifications list using DOM elements instead of innerHTML
+   */
   renderPhoneNotifications() {
-    this.phoneNotificationsList.innerHTML = '';
+    // Clear the list safely
+    while (this.phoneNotificationsList.firstChild) {
+      this.phoneNotificationsList.removeChild(this.phoneNotificationsList.firstChild);
+    }
+    
     const notifs = this.appState.state.notifications;
 
     if (notifs.length === 0) {
-      this.phoneNotificationsList.innerHTML = `<div class="view-desc" style="text-align:center; padding: 12px 0;">No active alerts. Your habits are stable!</div>`;
+      const emptyMsg = createSafeElement('div', 'view-desc', 'No active alerts. Your habits are stable!');
+      emptyMsg.style.textAlign = 'center';
+      emptyMsg.style.padding = '12px 0';
+      this.phoneNotificationsList.appendChild(emptyMsg);
       return;
     }
 
     notifs.forEach(n => {
-      const card = document.createElement('div');
-      card.className = `notif-card ${n.type || 'info'}`;
-      card.innerHTML = `<div class="notif-header"><span class="notif-title">${n.title}</span><span class="notif-time">${n.time}</span></div><p class="notif-body">${n.body}</p>`;
+      const cardTypeClass = n.type || 'info';
+      const card = createSafeElement('div', ['notif-card', cardTypeClass]);
+      
+      const header = createSafeElement('div', 'notif-header');
+      const titleSpan = createSafeElement('span', 'notif-title', n.title);
+      const timeSpan = createSafeElement('span', 'notif-time', n.time);
+      
+      header.appendChild(titleSpan);
+      header.appendChild(timeSpan);
+      
+      const body = createSafeElement('p', 'notif-body', n.body);
+      
+      card.appendChild(header);
+      card.appendChild(body);
+      
       this.phoneNotificationsList.appendChild(card);
     });
   }
 
+  /**
+   * Syncs the diet tracker tab
+   */
   syncPhoneDietUI() {
     const currentDiet = this.appState.state.daily.foodChoice;
     this.dietButtons.forEach(btn => {
@@ -503,16 +382,37 @@ export class UIController {
     });
   }
 
+  /**
+   * Safely renders the insights and historical trips using DOM elements instead of innerHTML
+   */
   syncPhoneInsightsUI() {
-    this.phoneHistoryList.innerHTML = '';
+    // Clear list safely
+    while (this.phoneHistoryList.firstChild) {
+      this.phoneHistoryList.removeChild(this.phoneHistoryList.firstChild);
+    }
+
     const history = this.appState.state.history;
     if (history.length === 0) {
-      this.phoneHistoryList.innerHTML = `<div class="view-desc" style="text-align:center; padding: 20px 0;">Your travel log is empty. Use GPS tab to track trips!</div>`;
+      const emptyMsg = createSafeElement('div', 'view-desc', 'Your travel log is empty. Use GPS tab to track trips!');
+      emptyMsg.style.textAlign = 'center';
+      emptyMsg.style.padding = '20px 0';
+      this.phoneHistoryList.appendChild(emptyMsg);
     } else {
       history.forEach(log => {
-        const item = document.createElement('div');
-        item.className = 'history-card';
-        item.innerHTML = `<div><span class="history-route">${log.routeName}</span><div class="history-meta">${log.dayOfWeek} at ${log.time} • ${log.distance.toFixed(1)} km (${log.duration} mins)</div></div><span class="history-badge">${log.confirmedMode}</span>`;
+        const item = createSafeElement('div', 'history-card');
+        
+        const detailsContainer = createSafeElement('div');
+        const routeSpan = createSafeElement('span', 'history-route', log.routeName);
+        const metaDiv = createSafeElement('div', 'history-meta', `${log.dayOfWeek} at ${log.time} • ${log.distance.toFixed(1)} km (${log.duration} mins)`);
+        
+        detailsContainer.appendChild(routeSpan);
+        detailsContainer.appendChild(metaDiv);
+        
+        const badgeSpan = createSafeElement('span', 'history-badge', log.confirmedMode);
+        
+        item.appendChild(detailsContainer);
+        item.appendChild(badgeSpan);
+        
         this.phoneHistoryList.appendChild(item);
       });
     }
