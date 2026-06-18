@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:;">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>3D City Carbon Footprint Visualizer</title>
@@ -35,7 +36,7 @@
     <canvas id="city-canvas"></canvas>
 
     <!-- Desktop Panel UI -->
-    <div id="dashboard">
+    <main id="dashboard">
       <header>
         <div class="logo-area">
           <div class="logo-dot"></div>
@@ -79,7 +80,7 @@
         
         <div class="control-group">
           <div class="control-header">
-            <span class="control-label">Car Travel</span>
+            <label class="control-label" for="input-car">Car Travel</label>
             <span class="control-val" id="val-car">20 km</span>
           </div>
           <input type="range" id="input-car" min="0" max="100" value="20" class="custom-slider">
@@ -87,7 +88,7 @@
 
         <div class="control-group">
           <div class="control-header">
-            <span class="control-label">Public Transit</span>
+            <label class="control-label" for="input-transit">Public Transit</label>
             <span class="control-val" id="val-transit">10 km</span>
           </div>
           <input type="range" id="input-transit" min="0" max="100" value="10" class="custom-slider">
@@ -95,14 +96,14 @@
 
         <div class="control-group">
           <div class="control-header">
-            <span class="control-label">Active (Walk / Bike)</span>
+            <label class="control-label" for="input-active">Active (Walk / Bike)</label>
             <span class="control-val" id="val-active">2 km</span>
           </div>
           <input type="range" id="input-active" min="0" max="25" value="2" class="custom-slider">
         </div>
 
         <div class="control-group">
-          <label class="control-label select-label">Dietary Habits</label>
+          <label class="control-label select-label" for="input-diet">Dietary Habits</label>
           <div class="select-wrapper">
             <select id="input-diet" class="custom-select">
               <option value="vegan">Vegan (Zero Animal Products)</option>
@@ -165,7 +166,7 @@
           Regenerate City Layout
         </button>
       </footer>
-    </div>
+    </main>
 
     <!-- Phone Mockup Container Overlay -->
     <div id="mobile-overlay" class="hidden">
@@ -242,7 +243,7 @@
 
             <div class="phone-card gps-setup" id="gps-setup-panel">
               <div class="phone-control-group">
-                <label class="phone-input-label">Select Simulated Route</label>
+                <label class="phone-input-label" for="gps-route-select">Select Simulated Route</label>
                 <select id="gps-route-select" class="phone-select">
                   <option value="college">Home ➔ College (12.5 km)</option>
                   <option value="market">Home ➔ Grocery Store (2.8 km)</option>
@@ -336,7 +337,7 @@
               </div>
 
               <div class="user-override hidden" id="override-section">
-                <label class="phone-input-label">Correct Transport Mode:</label>
+                <label class="phone-input-label" for="summary-mode-override">Correct Transport Mode:</label>
                 <div class="select-wrapper">
                   <select id="summary-mode-override" class="phone-select">
                     <option value="Car">Car (Personal vehicle)</option>
