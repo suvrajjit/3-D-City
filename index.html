@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>3D City Carbon Footprint Visualizer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <canvas id="city-canvas"></canvas>
+
+    <div id="dashboard">
+      <header>
+        <div class="logo-area">
+          <div class="logo-dot"></div>
+          <h1>EcoSphere 3D</h1>
+        </div>
+        <p class="subtitle">Carbon Digital Twin Visualizer</p>
+      </header>
+
+      <!-- Carbon Score Hero -->
+      <section class="score-card">
+        <div class="score-display">
+          <div class="score-circle-outer">
+            <div class="score-circle-inner">
+              <span id="score-num">0</span>
+              <span class="score-max">/100</span>
+            </div>
+          </div>
+          <div class="score-text">
+            <div class="status-indicator">
+              <span class="status-dot" id="status-dot"></span>
+              <h2 id="lifestyle-label">Eco-Hero</h2>
+            </div>
+            <p id="co2-label">0 kg CO2 / day</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Presets -->
+      <section class="section-container">
+        <h3>LIFESTYLE PRESETS</h3>
+        <div class="preset-buttons">
+          <button id="btn-eco" class="btn-preset">Eco-Warrior</button>
+          <button id="btn-avg" class="btn-preset active">Average Citizen</button>
+          <button id="btn-high" class="btn-preset">High Consumer</button>
+        </div>
+      </section>
+
+      <!-- Inputs -->
+      <section class="section-container">
+        <h3>DAILY ACTIVITY TRACKER</h3>
+        
+        <div class="control-group">
+          <div class="control-header">
+            <span class="control-label">Car Travel</span>
+            <span class="control-val" id="val-car">20 km</span>
+          </div>
+          <input type="range" id="input-car" min="0" max="100" value="20" class="custom-slider">
+        </div>
+
+        <div class="control-group">
+          <div class="control-header">
+            <span class="control-label">Public Transit</span>
+            <span class="control-val" id="val-transit">10 km</span>
+          </div>
+          <input type="range" id="input-transit" min="0" max="100" value="10" class="custom-slider">
+        </div>
+
+        <div class="control-group">
+          <div class="control-header">
+            <span class="control-label">Active (Walk / Bike)</span>
+            <span class="control-val" id="val-active">2 km</span>
+          </div>
+          <input type="range" id="input-active" min="0" max="25" value="2" class="custom-slider">
+        </div>
+
+        <div class="control-group">
+          <label class="control-label select-label">Dietary Habits</label>
+          <div class="select-wrapper">
+            <select id="input-diet" class="custom-select">
+              <option value="vegan">Vegan (Zero Animal Products)</option>
+              <option value="vegetarian">Vegetarian (No Meat)</option>
+              <option value="balanced" selected>Balanced (Some Meat/Poultry)</option>
+              <option value="meat-heavy">Meat-Heavy (Beef / High Carbon)</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Environmental Metrics -->
+      <section class="section-container">
+        <h3>ENVIRONMENTAL HEALTH</h3>
+        
+        <div class="metric-item">
+          <div class="metric-header">
+            <span>Heat Index (Ground Temp)</span>
+            <span id="val-metric-heat">Optimal</span>
+          </div>
+          <div class="progress-bar-container">
+            <div id="bar-heat" class="progress-bar heat" style="width: 10%"></div>
+          </div>
+        </div>
+
+        <div class="metric-item">
+          <div class="metric-header">
+            <span>Vegetation Cover</span>
+            <span id="val-metric-veg">95%</span>
+          </div>
+          <div class="progress-bar-container">
+            <div id="bar-veg" class="progress-bar veg" style="width: 95%"></div>
+          </div>
+        </div>
+
+        <div class="metric-item">
+          <div class="metric-header">
+            <span>Atmospheric Clarity</span>
+            <span id="val-metric-air">Pristine</span>
+          </div>
+          <div class="progress-bar-container">
+            <div id="bar-air" class="progress-bar air" style="width: 95%"></div>
+          </div>
+        </div>
+
+        <div class="metric-item">
+          <div class="metric-header">
+            <span>Water Resource Purity</span>
+            <span id="val-metric-water">Excellent</span>
+          </div>
+          <div class="progress-bar-container">
+            <div id="bar-water" class="progress-bar water" style="width: 90%"></div>
+          </div>
+        </div>
+      </section>
+
+      <footer>
+        <button id="btn-regenerate" class="btn-action">
+          <svg class="action-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          Regenerate City Layout
+        </button>
+      </footer>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
